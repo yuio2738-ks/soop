@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>복리 성장 챌린지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#08080f;
+    --bg-1:#111120;
+    --bg-2:#191930;
+    --bg-3:#1f1f3a;
+    --border:#2a2a48;
+    --text-hi:#f2f1fb;
+    --text-lo:#8d8ba8;
+    --accent:#8b5cf6;
+    --accent-2:#22d3ee;
+    --gain:#ff5c7a;
+    --gold:#f5c451;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(139,92,246,0.20), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(34,211,238,0.12), transparent 55%),
+      var(--bg-0);
+    color:var(--text-hi);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:36px 20px 80px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* ---------- header ---------- */
+  .comet{
+    height:3px;width:100%;border-radius:99px;margin-bottom:34px;
+    background:linear-gradient(90deg, transparent, var(--accent-2), var(--accent), var(--gold), transparent);
+    background-size:200% 100%;
+    animation:drift 7s linear infinite;
+    opacity:0.85;
+  }
+  @keyframes drift{0%{background-position:0% 0;}100%{background-position:200% 0;}}
+
+  header{text-align:center;margin-bottom:36px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--accent-2);margin-bottom:12px;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(28px,4.4vw,44px);
+    margin:0 0 10px;
+    background:linear-gradient(90deg,#fff, var(--accent-2) 45%, var(--accent) 90%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--text-lo);font-size:15px;max-width:520px;margin:0 auto;}
+
+  /* ---------- card ---------- */
+  .card{
+    background:linear-gradient(180deg, var(--bg-1), var(--bg-0));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:26px;
+  }
+  .input-card{margin-bottom:28px;}
+  .grid4{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:20px;
+  }
+  @media (max-width:860px){.grid4{grid-template-columns:1fr 1fr;}}
+  label{
+    display:block;font-size:12px;color:var(--text-lo);
+    margin-bottom:8px;letter-spacing:0.03em;font-weight:600;
+  }
+  .field{position:relative;}
+  .field .prefix{
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    color:var(--accent-2);font-family:'JetBrains Mono',monospace;font-weight:700;
+    pointer-events:none;
+  }
+  input[type=text], input[type=date]{
+    width:100%;
+    background:var(--bg-2);
+    border:1px solid var(--border);
+    color:var(--text-hi);
+    border-radius:10px;
+    padding:12px 14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s;
+    color-scheme:dark;
+  }
+  input[type=text]{padding-left:28px;}
+  input[type=text]:focus, input[type=date]:focus{border-color:var(--accent);}
+  .apply-row{display:flex;justify-content:center;}
+  button.apply{
+    background:linear-gradient(90deg, var(--accent), #6d28d9);
+    color:#fff;border:none;border-radius:10px;
+    padding:13px 40px;font-size:15px;font-weight:700;
+    cursor:pointer;letter-spacing:0.02em;
+    box-shadow:0 8px 24px -8px rgba(139,92,246,0.65);
+    transition:transform .12s, box-shadow .12s;
+    font-family:'Inter',sans-serif;
+  }
+  button.apply:hover{transform:translateY(-1px);box-shadow:0 10px 28px -6px rgba(139,92,246,0.8);}
+  button.apply:active{transform:translateY(0);}
+  .err{
+    color:var(--gain);font-size:13px;text-align:center;margin-top:14px;
+    display:none;
+  }
+
+  /* ---------- results ---------- */
+  #results{display:none;margin-top:38px;}
+  .challenge-title{text-align:center;margin-bottom:24px;}
+  .challenge-title .rocket{font-size:26px;}
+  .challenge-title h2{
+    font-family:'Space Grotesk',sans-serif;font-size:22px;margin:6px 0 0;
+    color:var(--text-hi);
+  }
+  .challenge-title .path{
+    font-family:'JetBrains Mono',monospace;color:var(--accent-2);font-size:14px;margin-top:6px;
+  }
+
+  .summary{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:30px;
+  }
+  @media (max-width:860px){.summary{grid-template-columns:1fr 1fr;}}
+  .stat{
+    background:var(--bg-1);border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px;
+  }
+  .stat .k{font-size:11px;color:var(--text-lo);letter-spacing:0.05em;margin-bottom:8px;font-weight:600;}
+  .stat .v{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;}
+  .stat.rate .v{color:var(--gain);}
+  .stat .v2{font-size:12px;color:var(--text-lo);margin-top:4px;font-family:'Inter',sans-serif;}
+
+  .progress-wrap{margin-bottom:26px;}
+  .progress-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .progress-head .lbl{font-size:12px;color:var(--text-lo);font-weight:600;}
+  .progress-head .val{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);font-weight:700;}
+  .bar-track{height:8px;border-radius:99px;background:var(--bg-2);overflow:hidden;border:1px solid var(--border);}
+  .bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--gold));width:0%;transition:width .25s;}
+
+  .reset-row{text-align:right;margin-bottom:12px;}
+  .reset-row button{
+    background:transparent;border:1px solid var(--border);color:var(--text-lo);
+    padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .reset-row button:hover{border-color:var(--gain);color:var(--gain);}
+
+  .tables-row{display:flex;flex-wrap:wrap;gap:16px;}
+  .mini{
+    flex:1 1 300px;
+    background:var(--bg-1);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  table{width:100%;border-collapse:collapse;}
+  .mini thead th{
+    background:linear-gradient(90deg, var(--accent), #6d28d9);
+    color:#fff;font-size:11.5px;letter-spacing:0.02em;
+    padding:10px 8px;text-align:center;font-weight:700;
+  }
+  .mini tbody td{
+    padding:8px 7px;font-size:12.5px;text-align:center;
+    border-bottom:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace;
+    white-space:nowrap;
+  }
+  .mini tbody tr:last-child td{border-bottom:none;}
+  .mini tbody tr:hover td{background:var(--bg-2);}
+  .idx-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--bg-3);color:var(--accent-2);
+    font-size:10.5px;font-weight:700;
+  }
+  .rate{color:var(--gain);font-weight:700;}
+  .end-seed{color:var(--text-hi);font-weight:700;}
+  .start-seed{color:var(--text-lo);}
+  input[type=checkbox]{
+    width:17px;height:17px;accent-color:var(--gold);cursor:pointer;
+  }
+  tr.done td{background:rgba(245,196,81,0.08);}
+  tr.done .end-seed, tr.done .rate{color:var(--gold);}
+
+  /* ---------- holiday reference ---------- */
+  .holiday-section{margin-top:64px;}
+  .holiday-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px;}
+  .holiday-head h3{
+    font-family:'Space Grotesk',sans-serif;font-size:19px;margin:0;
+  }
+  .holiday-head .desc{color:var(--text-lo);font-size:12.5px;margin-top:4px;}
+  .year-tabs{display:flex;gap:6px;}
+  .year-tabs button{
+    background:var(--bg-2);border:1px solid var(--border);color:var(--text-lo);
+    padding:7px 16px;border-radius:8px;font-size:13px;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-weight:600;
+  }
+  .year-tabs button.active{
+    background:var(--accent);border-color:var(--accent);color:#fff;
+  }
+  .holiday-table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:12px;border:1px solid var(--border);}
+  .holiday-table thead th{
+    background:var(--bg-2);color:var(--text-lo);font-size:11.5px;text-align:left;
+    padding:11px 16px;letter-spacing:0.04em;font-weight:700;border-bottom:1px solid var(--border);
+  }
+  .holiday-table tbody td{
+    padding:11px 16px;font-size:13.5px;border-bottom:1px solid var(--border);background:var(--bg-1);
+  }
+  .holiday-table tbody tr:last-child td{border-bottom:none;}
+  .holiday-table td.date{font-family:'JetBrains Mono',monospace;color:var(--accent-2);white-space:nowrap;}
+  .holiday-table td.dow{color:var(--text-lo);width:70px;}
+
+  .early-close{
+    margin-top:16px;background:var(--bg-1);border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px;
+  }
+  .early-close .k{font-size:11.5px;color:var(--text-lo);font-weight:700;letter-spacing:0.04em;margin-bottom:10px;}
+  .early-close ul{margin:0;padding-left:0;list-style:none;}
+  .early-close li{
+    display:flex;justify-content:space-between;
+    font-size:13px;padding:7px 0;border-bottom:1px dashed var(--border);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .early-close li:last-child{border-bottom:none;}
+  .early-close li span.tag{
+    font-family:'Inter',sans-serif;color:var(--text-lo);font-size:12px;
+  }
+  .early-close li span.time{color:var(--gold);font-weight:700;}
+
+  footer{text-align:center;color:var(--text-lo);font-size:11.5px;margin-top:60px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="comet"></div>
+  <header>
+    <div class="eyebrow">Compound Growth Planner</div>
+    <h1>🚀 복리 성장 챌린지</h1>
+    <p class="sub">시작 시드와 목표 시드, 그리고 기간을 입력하면 미국 증시 거래일 기준으로<br>매일 필요한 목표 수익률과 누적 자산을 계산해 드려요.</p>
+  </header>
+
+  <div class="card input-card">
+    <div class="grid4">
+      <div>
+        <label>시작 시드 (USD)</label>
+        <div class="field"><span class="prefix">$</span>
+          <input type="text" id="seedStart" inputmode="numeric" placeholder="550">
+        </div>
+      </div>
+      <div>
+        <label>목표 시드 (USD)</label>
+        <div class="field"><span class="prefix">$</span>
+          <input type="text" id="seedTarget" inputmode="numeric" placeholder="60,000">
+        </div>
+      </div>
+      <div>
+        <label>시작일</label>
+        <input type="date" id="dateStart">
+      </div>
+      <div>
+        <label>목표일</label>
+        <input type="date" id="dateTarget">
+      </div>
+    </div>
+    <div class="apply-row">
+      <button class="apply" onclick="applyChallenge()">적용</button>
+    </div>
+    <div class="err" id="errBox"></div>
+  </div>
+
+  <div id="results">
+    <div class="challenge-title">
+      <span class="rocket">🎯</span>
+      <h2 id="titleMain">복리 성장 챌린지</h2>
+      <div class="path" id="titlePath"></div>
+    </div>
+
+    <div class="summary">
+      <div class="stat"><div class="k">시작 금액</div><div class="v" id="statSeed">-</div></div>
+      <div class="stat"><div class="k">목표 금액</div><div class="v" id="statTarget">-</div></div>
+      <div class="stat"><div class="k">총 거래일</div><div class="v" id="statDays">-</div></div>
+      <div class="stat rate"><div class="k">일 목표 수익률</div><div class="v" id="statRate">-</div></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-head">
+        <span class="lbl">달성 진행률</span>
+        <span class="val" id="progressText">0 / 0 (0%)</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="progressBar"></div></div>
+    </div>
+
+    <div class="reset-row"><button onclick="resetChecks()">체크 초기화</button></div>
+
+    <div class="tables-row" id="tablesRow"></div>
+  </div>
+
+  <div class="holiday-section">
+    <div class="holiday-head">
+      <div>
+        <h3>🗓️ 미국 증시 휴장일</h3>
+        <div class="desc">NYSE · Nasdaq 공통 휴장일 기준 (거래일 계산에 자동 반영됩니다)</div>
+      </div>
+      <div class="year-tabs" id="yearTabs"></div>
+    </div>
+    <table class="holiday-table">
+      <thead><tr><th>날짜</th><th>요일</th><th>휴일명</th></tr></thead>
+      <tbody id="holidayBody"></tbody>
+    </table>
+    <div class="early-close">
+      <div class="k">조기 폐장일 (오후 1:00 ET 마감)</div>
+      <ul id="earlyCloseList"></ul>
+    </div>
+  </div>
+
+  <footer>휴장일 데이터 출처: NYSE Group 공식 발표 자료 · 일정은 변경될 수 있으니 nyse.com에서 최종 확인하세요.</footer>
+</div>
+
+<script>
+/* ---------------- holiday data ---------------- */
+const HOLIDAYS = {
+  "2025":[
+    ["2025-01-01","신정"],["2025-01-20","마틴 루터 킹 데이"],["2025-02-17","워싱턴 탄생일"],
+    ["2025-04-18","성금요일"],["2025-05-26","메모리얼 데이"],["2025-06-19","준틴스"],
+    ["2025-07-04","독립기념일"],["2025-09-01","노동절"],["2025-11-27","추수감사절"],["2025-12-25","크리스마스"]
+  ],
+  "2026":[
+    ["2026-01-01","신정"],["2026-01-19","마틴 루터 킹 데이"],["2026-02-16","워싱턴 탄생일"],
+    ["2026-04-03","성금요일"],["2026-05-25","메모리얼 데이"],["2026-06-19","준틴스"],
+    ["2026-07-03","독립기념일 (대체휴장)"],["2026-09-07","노동절"],["2026-11-26","추수감사절"],["2026-12-25","크리스마스"]
+  ],
+  "2027":[
+    ["2027-01-01","신정"],["2027-01-18","마틴 루터 킹 데이"],["2027-02-15","워싱턴 탄생일"],
+    ["2027-03-26","성금요일"],["2027-05-31","메모리얼 데이"],["2027-06-18","준틴스 (대체휴장)"],
+    ["2027-07-05","독립기념일 (대체휴장)"],["2027-09-06","노동절"],["2027-11-25","추수감사절"],["2027-12-24","크리스마스 (대체휴장)"]
+  ]
+};
+const EARLY_CLOSES = {
+  "2025":[["2025-07-03","독립기념일 전날"],["2025-11-28","추수감사절 다음날"],["2025-12-24","크리스마스 이브"]],
+  "2026":[["2026-11-27","추수감사절 다음날"],["2026-12-24","크리스마스 이브"]],
+  "2027":[["2027-11-26","추수감사절 다음날"]]
+};
+const DOW = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+
+/* ---------------- helpers ---------------- */
+const pad = n => n<10 ? '0'+n : ''+n;
+const toISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseISO = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const fmtDate = d => `${d.getMonth()+1}/${d.getDate()}`;
+const fmtMoney = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct = n => (n>=0?'+':'') + (n*100).toFixed(2) + '%';
+
+function attachCurrencyInput(el){
+  el.addEventListener('input', ()=>{
+    let v = el.value.replace(/[^0-9]/g,'');
+    el.value = v==='' ? '' : Number(v).toLocaleString('en-US');
+  });
+}
+function rawNumber(el){ return Number(el.value.replace(/,/g,'')) || 0; }
+attachCurrencyInput(document.getElementById('seedStart'));
+attachCurrencyInput(document.getElementById('seedTarget'));
+
+/* restore last used config, or default to today -> +30 days */
+(function setDefaultDates(){
+  const saved = localStorage.getItem('gc_last_config');
+  if(saved){
+    try{
+      const cfg = JSON.parse(saved);
+      document.getElementById('seedStart').value = cfg.seedStart;
+      document.getElementById('seedTarget').value = cfg.seedTarget;
+      document.getElementById('dateStart').value = cfg.dateStart;
+      document.getElementById('dateTarget').value = cfg.dateTarget;
+      setTimeout(applyChallenge, 0);
+      return;
+    }catch(e){ /* fall through to defaults */ }
+  }
+  const t = new Date();
+  const target = new Date(t); target.setDate(target.getDate()+30);
+  document.getElementById('dateStart').value = toISO(t);
+  document.getElementById('dateTarget').value = toISO(target);
+})();
+
+function buildHolidaySet(y1,y2){
+  const set = new Set();
+  for(let y=y1;y<=y2;y++){
+    (HOLIDAYS[String(y)]||[]).forEach(([date])=>set.add(date));
+  }
+  return set;
+}
+function isTradingDay(d, holidaySet){
+  const day = d.getDay();
+  if(day===0||day===6) return false;
+  if(holidaySet.has(toISO(d))) return false;
+  return true;
+}
+
+let currentConfigKey = '';
+
+function showError(msg){
+  const box = document.getElementById('errBox');
+  box.textContent = msg;
+  box.style.display = msg ? 'block' : 'none';
+}
+
+function applyChallenge(){
+  showError('');
+  const seed = rawNumber(document.getElementById('seedStart'));
+  const target = rawNumber(document.getElementById('seedTarget'));
+  const startStr = document.getElementById('dateStart').value;
+  const targetStr = document.getElementById('dateTarget').value;
+
+  if(!seed || seed<=0){ showError('시작 시드를 입력해 주세요.'); return; }
+  if(!target || target<=seed){ showError('목표 시드는 시작 시드보다 커야 해요.'); return; }
+  if(!startStr || !targetStr){ showError('시작일과 목표일을 선택해 주세요.'); return; }
+
+  const startDate = parseISO(startStr);
+  const targetDate = parseISO(targetStr);
+  if(targetDate<=startDate){ showError('목표일은 시작일보다 이후여야 해요.'); return; }
+
+  const holidaySet = buildHolidaySet(startDate.getFullYear(), targetDate.getFullYear());
+  const days = [];
+  const cur = new Date(startDate);
+  while(cur<=targetDate){
+    if(isTradingDay(cur, holidaySet)) days.push(new Date(cur));
+    cur.setDate(cur.getDate()+1);
+  }
+  if(days.length===0){ showError('해당 기간에 거래일이 없어요. 기간을 다시 선택해 주세요.'); return; }
+
+  const n = days.length;
+  const r = Math.pow(target/seed, 1/n) - 1;
+
+  let prev = seed;
+  const rows = days.map((d,i)=>{
+    const end = seed*Math.pow(1+r, i+1);
+    const row = { idx:i+1, date:d, start:prev, end, rate:r };
+    prev = end;
+    return row;
+  });
+
+  currentConfigKey = `${startStr}|${targetStr}|${seed}|${target}`;
+  localStorage.setItem('gc_last_config', JSON.stringify({
+    seedStart: document.getElementById('seedStart').value,
+    seedTarget: document.getElementById('seedTarget').value,
+    dateStart: startStr,
+    dateTarget: targetStr
+  }));
+  renderResults(rows, { seed, target, n, r, startDate, targetDate });
+}
+
+function renderResults(rows, meta){
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('titleMain').textContent =
+    `${fmtMoney(meta.seed).replace('.00','')} → ${fmtMoney(meta.target).replace('.00','')} 목표 복리 계획`;
+  document.getElementById('titlePath').textContent =
+    `${toISO(meta.startDate)}  →  ${toISO(meta.targetDate)}`;
+
+  document.getElementById('statSeed').textContent = fmtMoney(meta.seed);
+  document.getElementById('statTarget').textContent = fmtMoney(meta.target);
+  document.getElementById('statDays').textContent = meta.n + ' 거래일';
+  document.getElementById('statRate').textContent = '약 ' + fmtPct(meta.r);
+
+  const ROWS_PER_TABLE = 15;
+  const container = document.getElementById('tablesRow');
+  container.innerHTML = '';
+
+  for(let i=0; i<rows.length; i+=ROWS_PER_TABLE){
+    const chunk = rows.slice(i, i+ROWS_PER_TABLE);
+    const mini = document.createElement('div');
+    mini.className = 'mini';
+    const table = document.createElement('table');
+    table.innerHTML = `<thead><tr><th>#</th><th>날짜</th><th>시작 시드</th><th>목표 시드</th><th>수익률</th><th>완료</th></tr></thead>`;
+    const tbody = document.createElement('tbody');
+    chunk.forEach(row=>{
+      const iso = toISO(row.date);
+      const checkId = `chk-${iso}-${row.idx}`;
+      const storeKey = `gc::${currentConfigKey}::${row.idx}`;
+      const checked = localStorage.getItem(storeKey) === '1';
+      const tr = document.createElement('tr');
+      if(checked) tr.classList.add('done');
+      tr.innerHTML = `
+        <td><span class="idx-badge">${row.idx}</span></td>
+        <td>${fmtDate(row.date)}</td>
+        <td class="start-seed">${fmtMoney(row.start)}</td>
+        <td class="end-seed">${fmtMoney(row.end)}</td>
+        <td class="rate">${fmtPct(row.rate)}</td>
+        <td><input type="checkbox" id="${checkId}" data-key="${storeKey}" ${checked?'checked':''}></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    mini.appendChild(table);
+    container.appendChild(mini);
+  }
+
+  container.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      localStorage.setItem(cb.dataset.key, cb.checked ? '1' : '0');
+      cb.closest('tr').classList.toggle('done', cb.checked);
+      updateProgress(rows.length);
+    });
+  });
+
+  updateProgress(rows.length);
+}
+
+function updateProgress(total){
+  const checked = document.querySelectorAll('#tablesRow input[type=checkbox]:checked').length;
+  const pct = total ? Math.round((checked/total)*100) : 0;
+  document.getElementById('progressText').textContent = `${checked} / ${total} (${pct}%)`;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function resetChecks(){
+  document.querySelectorAll('#tablesRow input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+    localStorage.setItem(cb.dataset.key, '0');
+    cb.closest('tr').classList.remove('done');
+  });
+  updateProgress(document.querySelectorAll('#tablesRow input[type=checkbox]').length);
+}
+
+/* ---------------- holiday reference table ---------------- */
+let activeYear = '2026';
+function renderHolidayYear(year){
+  activeYear = year;
+  document.querySelectorAll('.year-tabs button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.year===year);
+  });
+  const body = document.getElementById('holidayBody');
+  body.innerHTML = HOLIDAYS[year].map(([date,name])=>{
+    const d = parseISO(date);
+    return `<tr><td class="date">${date}</td><td class="dow">${DOW[d.getDay()]}</td><td>${name}</td></tr>`;
+  }).join('');
+
+  const list = document.getElementById('earlyCloseList');
+  const ec = EARLY_CLOSES[year] || [];
+  list.innerHTML = ec.length
+    ? ec.map(([date,label])=>`<li><span class="tag">${date} · ${label}</span><span class="time">13:00 ET 마감</span></li>`).join('')
+    : `<li><span class="tag">해당 연도 조기 폐장일 없음</span></li>`;
+}
+
+(function initYearTabs(){
+  const tabs = document.getElementById('yearTabs');
+  Object.keys(HOLIDAYS).forEach(year=>{
+    const btn = document.createElement('button');
+    btn.textContent = year;
+    btn.dataset.year = year;
+    btn.onclick = ()=>renderHolidayYear(year);
+    tabs.appendChild(btn);
+  });
+  renderHolidayYear('2026');
+})();
+</script>
+</body>
+</html>
